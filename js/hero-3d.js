@@ -37,9 +37,10 @@ export async function initHero3D() {
   const cam = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 100);
   cam.position.z = 14;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'low-power' });
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
   renderer.setSize(innerWidth, innerHeight);
+  cam.position.z = 15;
 
   // Two interleaved fields: warm accent dust + pale "paper" motes
   const isMobile = matchMedia('(max-width: 768px)').matches;
@@ -61,11 +62,27 @@ export async function initHero3D() {
     });
     const pts = new THREE.Points(geo, mat);
     scene.add(pts);
-    return { geo, mat };
+    return { geo, mat, baseOpacity: opacity };
   }
 
-  const dust  = makeField(isMobile ? 700 : 1600, accentColor, 0.05, 0.5);
-  const motes = makeField(isMobile ? 350 : 900,  paperColor,  0.025, 0.3);
+  const dust  = makeField(isMobile ? 900 : 2200, accentColor, 0.06, 0.55);
+  const motes = makeField(isMobile ? 450 : 1200, paperColor,  0.03, 0.35);
+
+  /* Wireframe geometry behind the hero — quiet structural depth */
+  const lattice = new THREE.LineSegments(
+    new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(6.5, 1)),
+    new THREE.LineBasicMaterial({ color: accentColor, transparent: true, opacity: 0.16 })
+  );
+  lattice.position.set(0, 0.5, -6);
+  scene.add(lattice);
+
+  const orbit = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.TorusGeometry(9, 0.6, 5, 42)),
+    new THREE.LineBasicMaterial({ color: paperColor, transparent: true, opacity: 0.10 })
+  );
+  orbit.position.set(4.5, -1, -5);
+  orbit.rotation.x = 1.15;
+  scene.add(orbit);
 
   // Pointer + scroll state (eased, never raw)
   let mx = 0, my = 0, scrollFade = 1;

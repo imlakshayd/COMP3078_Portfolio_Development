@@ -1,15 +1,17 @@
 /* ============================================
    Lakshay Dhawan — Portfolio JavaScript
+   v2: cinematic motion layer
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
   const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.remove('booting');
 
   /* Grid children get their own reveal + stagger (before observer query) */
-  document.querySelectorAll('.projects-grid, .capstone-requirements, .docs-grid, .capstone-timeline').forEach(grid => {
+  document.querySelectorAll('.projects-grid, .capstone-requirements, .docs-grid, .capstone-timeline, .about-stats').forEach(grid => {
     [...grid.children].forEach((child, i) => {
       child.classList.add('reveal');
-      child.style.setProperty('--stagger', `${(Math.min(i, 6) * 70 / 1000).toFixed(2)}s`);
+      child.style.setProperty('--stagger', `${(Math.min(i, 7) * 0.11).toFixed(2)}s`);
     });
   });
 
@@ -56,8 +58,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ===========================================
-     3. NAVBAR SCROLL EFFECT + PROGRESS BAR
+     3. NAVBAR SCROLL + PROGRESS + SLIDING INDICATOR
      =========================================== */
+  const navList = document.querySelector('.nav-links');
+  const navIndicator = document.createElement('span');
+  navIndicator.className = 'nav-indicator';
+  navList.appendChild(navIndicator);
+
+  function moveIndicator() {
+    const active = document.querySelector('.nav-link.active');
+    if (!active || getComputedStyle(navList).display === 'none') return;
+    const lr = navList.getBoundingClientRect();
+    const ar = active.getBoundingClientRect();
+    navIndicator.style.transform = `translateX(${ar.left - lr.left}px)`;
+    navIndicator.style.width = `${ar.width}px`;
+  }
+
   let ticking = false;
   window.addEventListener('scroll', () => {
     if (ticking) return;
@@ -87,51 +103,276 @@ document.addEventListener('DOMContentLoaded', () => {
         if (scrollY >= top && scrollY < top + height) {
           allNavLinks.forEach(l => l.classList.remove('active'));
           link.classList.add('active');
+          moveIndicator();
         }
       }
     });
   }
   window.addEventListener('scroll', updateActiveNav, { passive: true });
+  addEventListener('resize', moveIndicator);
   updateActiveNav();
+  requestAnimationFrame(moveIndicator);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveIndicator);
 
   /* ===========================================
-     5. SCROLL-REVEAL (IntersectionObserver)
+     5. SCROLL-REVEAL — replayable both directions
      =========================================== */
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
-      }
+      entry.target.classList.toggle('visible', entry.isIntersecting);
     });
   }, {
-    threshold: 0.12,
-    rootMargin: '0px 0px -40px 0px'
+    threshold: 0.1,
+    rootMargin: '0px 0px -60px 0px'
   });
 
-  reveals.forEach(el => revealObserver.observe(el));
+  reveals.forEach(el => {
+    if (el.closest('.hero')) return; // hero uses the entrance choreography
+    revealObserver.observe(el);
+  });
 
   /* ===========================================
-     6. SMOOTH SCROLL FOR ANCHOR LINKS
+     6. HERO ENTRANCE — choreographed timeline
+     =========================================== */
+  const heroCopy   = document.querySelector('.hero-copy');
+  const heroName   = document.querySelector('.hero-name');
+  const heroGreet  = document.querySelector('.hero-greeting');
+  const heroTitle  = document.querySelector('.hero-title');
+  const heroIntro  = document.querySelector('.hero-intro');
+  const heroCta    = document.querySelector('.hero-cta');
+  const heroNotes  = document.querySelector('.hero-notes');
+
+  [heroGreet, heroTitle, heroIntro, heroCta, heroNotes].forEach(el => el && el.classList.remove('reveal'));
+  if (heroCopy && heroName && !prefersReducedMotion) {
+    const words = heroName.textContent.trim().split(/\s+/);
+    heroName.innerHTML = words.map(w => `<span class="hero-word"><span>${w}</span></span>`).join(' ');
+
+    document.body.classList.add('hero-enter');
+    setTimeout(() => document.body.classList.add('hero-enter-done'), 2400);
+  }
+
+  /* Hero notes card: pointer tilt (applied through CSS vars, composed in CSS) */
+  if (heroNotes && !prefersReducedMotion && matchMedia('(pointer: fine)').matches) {
+    addEventListener('pointermove', e => {
+      heroNotes.style.setProperty('--tilt-x', `${((e.clientY / innerHeight) - 0.5) * -3}deg`);
+      heroNotes.style.setProperty('--tilt-y', `${((e.clientX / innerWidth) - 0.5) * 4}deg`);
+    }, { passive: true });
+  }
+
+  /* ===========================================
+     7. SMOOTH SCROLL FOR ANCHOR LINKS
      =========================================== */
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', e => {
+      const href = anchor.getAttribute('href');
+      if (href.length < 2) return;
       e.preventDefault();
-      const target = document.querySelector(anchor.getAttribute('href'));
+      const target = document.querySelector(href);
       if (target) {
         const offset = 72; // navbar height
         const top = target.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top, behavior: 'smooth' });
+        window.scrollTo({ top, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
       }
     });
   });
 
   /* ===========================================
-     7. CONTACT — LinkedIn / GitHub only (no dead form)
+     8. RESUME ACCORDION — turns the 5,000px wall
+        into collapsible, animated panels
      =========================================== */
+  document.querySelectorAll('#resume .resume-section').forEach((block, i) => {
+    const title = block.querySelector('.resume-section-title');
+    if (!title) return;
+    const panel = document.createElement('div');
+    panel.className = 'resume-panel';
+    const inner = document.createElement('div');
+    inner.className = 'resume-panel-inner';
+    while (block.children.length > 1) inner.appendChild(block.children[1]);
+    panel.appendChild(inner);
+    block.appendChild(panel);
+
+    const count = panel.querySelectorAll('.resume-entry').length ||
+                  panel.querySelectorAll('.skill-tag').length;
+    title.insertAdjacentHTML('beforeend',
+      `<span class="resume-chev" aria-hidden="true">+</span>` +
+      (count ? `<span class="resume-count">${count}</span>` : ''));
+
+    if (i === 0) {
+      block.classList.add('open');
+      title.setAttribute('aria-expanded', 'true');
+    }
+    title.setAttribute('role', 'button');
+    title.setAttribute('tabindex', '0');
+    title.addEventListener('click', () => {
+      const open = block.classList.toggle('open');
+      title.setAttribute('aria-expanded', String(open));
+    });
+    title.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); title.click(); }
+    });
+  });
 
   /* ===========================================
-     8. COVER LETTER GENERATOR
+     9. STAT COUNT-UP
+     =========================================== */
+  if (!prefersReducedMotion) {
+    const statObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        statObserver.unobserve(entry.target);
+        const el = entry.target;
+        const m  = el.textContent.match(/^(\d+)(.*)$/);
+        if (!m) return;
+        const target = parseInt(m[1], 10);
+        const suffix = m[2] || '';
+        const dur = 1600, t0 = performance.now();
+        (function tick(t) {
+          const p = Math.min(1, (t - t0) / dur);
+          const eased = 1 - Math.pow(1 - p, 4);
+          el.textContent = Math.round(target * eased) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        })(t0);
+      });
+    }, { threshold: 0.6 });
+    document.querySelectorAll('.stat-number').forEach(el => statObserver.observe(el));
+  }
+
+  /* ===========================================
+     10. SCRAMBLE-DECODE on section titles (slow decode)
+     =========================================== */
+  const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&*<>/\\{}[]';
+  function scramble(el) {
+    const final = el.dataset.finalText;
+    let frame = 0;
+    const queue = [...final].map((ch, i) => ({
+      ch, start: Math.floor(i * 2.6), end: Math.floor(i * 2.6) + 14 + Math.random() * 14,
+    }));
+    function tick() {
+      let out = '';
+      let done = 0;
+      queue.forEach(q => {
+        if (frame >= q.end) { out += q.ch; done++; }
+        else if (frame >= q.start) { out += GLYPHS[Math.floor(Math.random() * GLYPHS.length)]; }
+        else out += ' ';
+      });
+      el.textContent = out;
+      if (done < queue.length) { frame++; requestAnimationFrame(tick); }
+      else { el.textContent = final; el.classList.add('decoded'); }
+    }
+    tick();
+  }
+
+  if (!prefersReducedMotion) {
+    document.querySelectorAll('.section-title').forEach(el => {
+      el.dataset.finalText = el.textContent;
+    });
+    const scrambleObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          scramble(entry.target);
+          scrambleObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.6 });
+    document.querySelectorAll('.section-title').forEach(el => {
+      if (el.closest('.hero')) return;
+      scrambleObserver.observe(el);
+    });
+  }
+
+  /* ===========================================
+     11. SLOW 3D TILT on project cards
+     =========================================== */
+  if (!prefersReducedMotion && matchMedia('(pointer: fine)').matches) {
+    document.querySelectorAll('.project-card').forEach(card => {
+      card.classList.add('tilt');
+      card.addEventListener('pointermove', e => {
+        const r = card.getBoundingClientRect();
+        const rx = ((e.clientY - r.top) / r.height - 0.5) * -5;
+        const ry = ((e.clientX - r.left) / r.width - 0.5) * 7;
+        card.style.transform = `perspective(1100px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
+      });
+      card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+    });
+  }
+
+  /* ===========================================
+     12. MAGNETIC pull on buttons (gentle, slow release)
+     =========================================== */
+  if (!prefersReducedMotion && matchMedia('(pointer: fine)').matches) {
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('pointermove', e => {
+        const r = btn.getBoundingClientRect();
+        const dx = (e.clientX - r.left - r.width / 2) * 0.14;
+        const dy = (e.clientY - r.top - r.height / 2) * 0.22;
+        btn.style.transform = `translate(${dx}px, ${dy}px)`;
+      });
+      btn.addEventListener('pointerleave', () => {
+        btn.style.transition = 'transform 0.7s cubic-bezier(.16,1,.3,1)';
+        btn.style.transform = '';
+        setTimeout(() => { btn.style.transition = ''; }, 700);
+      });
+    });
+  }
+
+  /* ===========================================
+     13. CUSTOM CURSOR (desktop only)
+     =========================================== */
+  if (!prefersReducedMotion && matchMedia('(pointer: fine)').matches) {
+    const dot  = document.createElement('div'); dot.className  = 'cursor-dot';
+    const ring = document.createElement('div'); ring.className = 'cursor-ring';
+    document.body.append(dot, ring);
+    document.body.classList.add('has-cursor');
+    dot.style.opacity = ring.style.opacity = '0';
+    let cursorStarted = false;
+    let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+    addEventListener('pointermove', e => {
+      if (!cursorStarted) {
+        mx = rx = e.clientX;
+        my = ry = e.clientY;
+        dot.style.opacity = '1';
+        ring.style.opacity = '';
+        cursorStarted = true;
+      }
+      mx = e.clientX; my = e.clientY;
+    }, { passive: true });
+    (function loop() {
+      if (cursorStarted) {
+        rx += (mx - rx) * 0.16;
+        ry += (my - ry) * 0.16;
+        dot.style.transform  = `translate3d(${mx - 3}px, ${my - 3}px, 0)`;
+        ring.style.transform = `translate3d(${rx - 17}px, ${ry - 17}px, 0)`;
+        const hover = document.querySelector(':hover');
+        ring.classList.toggle('grow', !!(hover && hover.closest && hover.closest('a, button, .resume-section-title, [contenteditable="true"]')));
+      }
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  /* ===========================================
+     14. CINEMATIC HERO PARALLAX (lerped rAF loop)
+     =========================================== */
+  if (heroCopy && !prefersReducedMotion) {
+    let cur = -1;
+    (function loop() {
+      const y = window.scrollY;
+      const heroH = heroCopy.offsetHeight || 600;
+      if (Math.abs(y - cur) > 0.5) {
+        cur = y;
+        const p = Math.min(1, y / heroH);
+        heroCopy.style.transform  = `translateY(${p * 170}px)`;
+        heroCopy.style.opacity    = String(Math.max(0, 1 - p * 1.15));
+        if (heroNotes) {
+          heroNotes.style.setProperty('--p-y', `${p * -70}px`);
+          heroNotes.style.setProperty('--p-r', `${p * 4}deg`);
+        }
+      }
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  /* ===========================================
+     15. COVER LETTER GENERATOR
      =========================================== */
   const coverLetterDoc  = document.getElementById('coverLetterDoc');
   const copyBtn         = document.getElementById('copyCoverLetter');
@@ -204,82 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ===========================================
-     9. SCRAMBLE-DECODE on section titles
-     =========================================== */
-  const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&*<>/\\{}[]';
-  function scramble(el) {
-    const final = el.dataset.finalText;
-    let frame = 0;
-    const queue = [...final].map((ch, i) => ({
-      ch, start: Math.floor(i * 1.6), end: Math.floor(i * 1.6) + 8 + Math.random() * 10,
-    }));
-    function tick() {
-      let out = '';
-      let done = 0;
-      queue.forEach(q => {
-        if (frame >= q.end) { out += q.ch; done++; }
-        else if (frame >= q.start) { out += GLYPHS[Math.floor(Math.random() * GLYPHS.length)]; }
-        else out += ' ';
-      });
-      el.textContent = out;
-      if (done < queue.length) { frame++; requestAnimationFrame(tick); }
-      else el.textContent = final;
-    }
-    tick();
-  }
-
-  if (!prefersReducedMotion) {
-    document.querySelectorAll('.section-title').forEach(el => {
-      el.dataset.finalText = el.textContent;
-    });
-    const scrambleObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          scramble(entry.target);
-          scrambleObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.6 });
-    document.querySelectorAll('.section-title').forEach(el => scrambleObserver.observe(el));
-  }
-
-  /* ===========================================
-     10. 3D TILT on project cards (pointer tracking)
-     =========================================== */
-  if (!prefersReducedMotion && matchMedia('(pointer: fine)').matches) {
-    document.querySelectorAll('.project-card').forEach(card => {
-      card.classList.add('tilt');
-      card.addEventListener('pointermove', e => {
-        const r = card.getBoundingClientRect();
-        const rx = ((e.clientY - r.top) / r.height - 0.5) * -6;
-        const ry = ((e.clientX - r.left) / r.width - 0.5) * 8;
-        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
-      });
-      card.addEventListener('pointerleave', () => { card.style.transform = ''; });
-    });
-  }
-
-  /* ===========================================
-     11. MAGNETIC pull on primary buttons
-     =========================================== */
-  if (!prefersReducedMotion && matchMedia('(pointer: fine)').matches) {
-    document.querySelectorAll('.btn').forEach(btn => {
-      btn.addEventListener('pointermove', e => {
-        const r = btn.getBoundingClientRect();
-        const dx = (e.clientX - r.left - r.width / 2) * 0.18;
-        const dy = (e.clientY - r.top - r.height / 2) * 0.3;
-        btn.style.transform = `translate(${dx}px, ${dy}px)`;
-      });
-      btn.addEventListener('pointerleave', () => {
-        btn.style.transition = 'transform 0.4s cubic-bezier(.22,1,.36,1)';
-        btn.style.transform = '';
-        setTimeout(() => { btn.style.transition = ''; }, 400);
-      });
-    });
-  }
-
-  /* ===========================================
-     12. THREE.JS hero field (lazy, optional)
+     16. THREE.JS hero scene (lazy, optional)
      =========================================== */
   if (!prefersReducedMotion && !matchMedia('(prefers-reduced-data: reduce)').matches) {
     import('./hero-3d.js')
