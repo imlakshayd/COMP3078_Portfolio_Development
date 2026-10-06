@@ -95,6 +95,9 @@ export async function initHero3D() {
   function onScroll() {
     const h = hero ? hero.offsetHeight : innerHeight;
     scrollFade = Math.max(0, 1 - scrollY / h);
+    // drive opacity here too: the loop pauses once the hero is off-screen,
+    // and without this the last painted frame would linger behind sections
+    canvas.style.opacity = scrollFade.toFixed(3);
   }
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
@@ -114,20 +117,39 @@ export async function initHero3D() {
   new MutationObserver(() => {
     dust.mat.color.set(cssColor('--accent'));
     motes.mat.color.set(cssColor('--text-primary'));
-    dust.mat.opacity = 0.5;
+    lattice.material.color.set(cssColor('--accent'));
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   motes.mat.color.set(cssColor('--text-primary'));
 
+  // target values the camera eases toward (heavy easing = calm drift)
+  let camTX = 0, camTY = 2;
+  addEventListener('pointermove', () => {
+    camTX = mx * 1.6;
+    camTY = -my * 1.1 + scrollFade * 1.5;
+  }, { passive: true });
+
   renderer.setAnimationLoop((t) => {
     if (!heroVisible || scrollFade <= 0.01) return;
-    dust.geo.rotateY(t * 0.000035);
-    motes.geo.rotateY(-t * 0.00002);
-    cam.position.x += (mx * 2.2 - cam.position.x) * 0.045;
-    cam.position.y += (-my * 1.4 + scrollFade * 2 - cam.position.y) * 0.045;
-    cam.lookAt(0, 0, 0);
-    dust.mat.opacity  = 0.5  * scrollFade;
-    motes.mat.opacity = 0.3  * scrollFade;
+
+    // very slow ambient rotation — full revolution in ~12-20 min
+    dust.geo.rotateY(t * 0.000009);
+    motes.geo.rotateY(-t * 0.000005);
+    lattice.rotation.y = t * 0.000016;
+    lattice.rotation.x = Math.sin(t * 0.000022) * 0.22;
+    orbit.rotation.z   = t * 0.000011;
+
+    // gentle, heavily-damped camera drift
+    cam.position.x += (camTX - cam.position.x) * 0.016;
+    cam.position.y += (camTY - cam.position.y) * 0.016;
+    cam.position.z = 15 - (1 - scrollFade) * 4;
+    cam.lookAt(0, 0, -2);
+
+    dust.mat.opacity         = 0.55 * scrollFade;
+    motes.mat.opacity        = 0.35 * scrollFade;
+    lattice.material.opacity = 0.16 * scrollFade;
+    orbit.material.opacity   = 0.10 * scrollFade;
     canvas.style.opacity = scrollFade.toFixed(3);
+
     renderer.render(scene, cam);
   });
 }

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.projects-grid, .capstone-requirements, .docs-grid, .capstone-timeline, .about-stats').forEach(grid => {
     [...grid.children].forEach((child, i) => {
       child.classList.add('reveal');
-      child.style.setProperty('--stagger', `${(Math.min(i, 7) * 0.11).toFixed(2)}s`);
+      child.style.setProperty('--stagger', `${(Math.min(i, 7) * 0.16).toFixed(2)}s`);
     });
   });
 
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     heroName.innerHTML = words.map(w => `<span class="hero-word"><span>${w}</span></span>`).join(' ');
 
     document.body.classList.add('hero-enter');
-    setTimeout(() => document.body.classList.add('hero-enter-done'), 2400);
+    setTimeout(() => document.body.classList.add('hero-enter-done'), 4200);
   }
 
   /* Hero notes card: pointer tilt (applied through CSS vars, composed in CSS) */
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!m) return;
         const target = parseInt(m[1], 10);
         const suffix = m[2] || '';
-        const dur = 1600, t0 = performance.now();
+        const dur = 2600, t0 = performance.now();
         (function tick(t) {
           const p = Math.min(1, (t - t0) / dur);
           const eased = 1 - Math.pow(1 - p, 4);
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const final = el.dataset.finalText;
     let frame = 0;
     const queue = [...final].map((ch, i) => ({
-      ch, start: Math.floor(i * 2.6), end: Math.floor(i * 2.6) + 14 + Math.random() * 14,
+      ch, start: Math.floor(i * 5.5), end: Math.floor(i * 5.5) + 26 + Math.random() * 18,
     }));
     function tick() {
       let out = '';
@@ -338,8 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
     (function loop() {
       if (cursorStarted) {
-        rx += (mx - rx) * 0.16;
-        ry += (my - ry) * 0.16;
+        rx += (mx - rx) * 0.1;
+        ry += (my - ry) * 0.1;
         dot.style.transform  = `translate3d(${mx - 3}px, ${my - 3}px, 0)`;
         ring.style.transform = `translate3d(${rx - 17}px, ${ry - 17}px, 0)`;
         const hover = document.querySelector(':hover');
@@ -453,3 +453,30 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(() => { /* no WebGL / offline CDN — page stays as-is */ });
   }
 });
+
+  /* ===========================================
+     12. GITHUB FEED — latest public commits, quiet failure
+     =========================================== */
+  (function ghFeed() {
+    const list = document.getElementById('ghFeed');
+    if (!list) return;
+    const NOISE = /(\d{9}|COMP\d|lab|a2_|exam|test|assign|exec|winter20|chat_app|midterm)/i;
+    fetch('https://api.github.com/users/imlakshayd/repos?sort=updated&per_page=30', {
+      headers: { Accept: 'application/vnd.github+json' }
+    })
+      .then(r => { if (!r.ok) throw 0; return r.json(); })
+      .then(repos => {
+        const picks = repos
+          .filter(r => !NOISE.test(r.name) && r.pushed_at)
+          .slice(0, 5);
+        if (!picks.length) throw 0;
+        const fmt = d => {
+          const days = Math.floor((Date.now() - new Date(d)) / 864e5);
+          return days < 1 ? 'today' : days < 30 ? days + 'd ago' : new Date(d).toLocaleDateString('en-CA', { month: 'short', year: 'numeric' });
+        };
+        list.innerHTML = picks.map(r => `<li><a href="${r.html_url}" target="_blank" rel="noopener"><span class="gh-repo">${r.name}</span></a><span class="gh-meta">${r.language || 'code'} &middot; ${fmt(r.pushed_at)}</span></li>`).join('');
+      })
+      .catch(() => {
+        list.innerHTML = '<li class="gh-feed-empty">Latest activity lives on <a href="https://github.com/imlakshayd" target="_blank" rel="noopener">github.com/imlakshayd</a>.</li>';
+      });
+  })();
