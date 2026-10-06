@@ -2616,3 +2616,67 @@ a {
     padding: 24px 16px 24px 44px;
   }
 }
+
+/* ========================================
+   MOTION LAYER (2026 refresh)
+   ======================================== */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--olive, #89927c));
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  z-index: 1001;
+  pointer-events: none;
+}
+
+#hero-3d {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.3s linear;
+}
+
+/* hero is transparent so the fixed canvas shows through; opaque
+   sections/footer sit above it and naturally mask the particles */
+.hero { position: relative; z-index: 1; background: none; }
+.section, .footer { position: relative; z-index: 1; }
+
+/* stagger for grid children (set by script.js) */
+.projects-grid > .reveal,
+.capstone-requirements > .reveal,
+.docs-grid > .reveal,
+.capstone-timeline > .reveal {
+  transition-delay: var(--stagger, 0s);
+}
+
+.project-card.tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.35s cubic-bezier(.22,1,.36,1), border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* magnetic buttons need a snappier base transition */
+.btn { transition: transform 0.2s ease-out, background 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+
+/* contact section: full-width row of cards, aligned with the heading */
+#contact .contact-grid { grid-template-columns: 1fr; }
+#contact .contact-links { flex-direction: row; gap: 24px; }
+#contact .contact-card { flex: 1; }
+#contact .contact-card p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.85rem; }
+@media (max-width: 640px) {
+  #contact .contact-links { flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  #hero-3d { display: none; }
+  .project-card.tilt { transform: none !important; }
+  .btn { transform: none !important; }
+}

@@ -3,14 +3,28 @@
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
+  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Grid children get their own reveal + stagger (before observer query) */
+  document.querySelectorAll('.projects-grid, .capstone-requirements, .docs-grid, .capstone-timeline').forEach(grid => {
+    [...grid.children].forEach((child, i) => {
+      child.classList.add('reveal');
+      child.style.setProperty('--stagger', `${(Math.min(i, 6) * 70 / 1000).toFixed(2)}s`);
+    });
+  });
+
   /* ---------- DOM References ---------- */
   const navbar      = document.getElementById('navbar');
   const hamburger   = document.getElementById('hamburger');
   const navLinks    = document.getElementById('navLinks');
   const themeToggle = document.getElementById('themeToggle');
-  const contactForm = document.getElementById('contactForm');
   const allNavLinks = document.querySelectorAll('.nav-link');
   const reveals     = document.querySelectorAll('.reveal');
+
+  /* ---------- Scroll progress bar ---------- */
+  const progressBar = document.createElement('div');
+  progressBar.className = 'scroll-progress';
+  document.body.appendChild(progressBar);
 
   /* ===========================================
      1. THEME TOGGLE (dark / light)
@@ -42,13 +56,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ===========================================
-     3. NAVBAR SCROLL EFFECT
+     3. NAVBAR SCROLL EFFECT + PROGRESS BAR
      =========================================== */
-  let lastScroll = 0;
+  let ticking = false;
   window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
-    navbar.classList.toggle('scrolled', scrollY > 50);
-    lastScroll = scrollY;
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const scrollY = window.scrollY;
+      navbar.classList.toggle('scrolled', scrollY > 50);
+      const max = document.documentElement.scrollHeight - innerHeight;
+      progressBar.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
+      ticking = false;
+    });
   }, { passive: true });
 
   /* ===========================================
@@ -107,30 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ===========================================
-     7. CONTACT FORM HANDLER
+     7. CONTACT — LinkedIn / GitHub only (no dead form)
      =========================================== */
-  contactForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const name    = document.getElementById('formName').value.trim();
-    const email   = document.getElementById('formEmail').value.trim();
-    const message = document.getElementById('formMessage').value.trim();
-
-    if (!name || !email || !message) return;
-
-    // Visual feedback
-    const btn = contactForm.querySelector('button[type="submit"]');
-    const original = btn.textContent;
-    btn.textContent = 'Message Sent!';
-    btn.style.background = '#10b981';
-    btn.disabled = true;
-
-    setTimeout(() => {
-      btn.textContent = original;
-      btn.style.background = '';
-      btn.disabled = false;
-      contactForm.reset();
-    }, 2500);
-  });
 
   /* ===========================================
      8. COVER LETTER GENERATOR
@@ -206,14 +204,86 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ===========================================
-     9. TYPING EFFECT ON HERO NAME (subtle)
+     9. SCRAMBLE-DECODE on section titles
      =========================================== */
-  const heroGreeting = document.querySelector('.hero-greeting');
-  if (heroGreeting) {
-    heroGreeting.style.opacity = '0';
-    setTimeout(() => {
-      heroGreeting.style.transition = 'opacity 1s ease';
-      heroGreeting.style.opacity = '1';
-    }, 300);
+  const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&*<>/\\{}[]';
+  function scramble(el) {
+    const final = el.dataset.finalText;
+    let frame = 0;
+    const queue = [...final].map((ch, i) => ({
+      ch, start: Math.floor(i * 1.6), end: Math.floor(i * 1.6) + 8 + Math.random() * 10,
+    }));
+    function tick() {
+      let out = '';
+      let done = 0;
+      queue.forEach(q => {
+        if (frame >= q.end) { out += q.ch; done++; }
+        else if (frame >= q.start) { out += GLYPHS[Math.floor(Math.random() * GLYPHS.length)]; }
+        else out += ' ';
+      });
+      el.textContent = out;
+      if (done < queue.length) { frame++; requestAnimationFrame(tick); }
+      else el.textContent = final;
+    }
+    tick();
+  }
+
+  if (!prefersReducedMotion) {
+    document.querySelectorAll('.section-title').forEach(el => {
+      el.dataset.finalText = el.textContent;
+    });
+    const scrambleObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          scramble(entry.target);
+          scrambleObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.6 });
+    document.querySelectorAll('.section-title').forEach(el => scrambleObserver.observe(el));
+  }
+
+  /* ===========================================
+     10. 3D TILT on project cards (pointer tracking)
+     =========================================== */
+  if (!prefersReducedMotion && matchMedia('(pointer: fine)').matches) {
+    document.querySelectorAll('.project-card').forEach(card => {
+      card.classList.add('tilt');
+      card.addEventListener('pointermove', e => {
+        const r = card.getBoundingClientRect();
+        const rx = ((e.clientY - r.top) / r.height - 0.5) * -6;
+        const ry = ((e.clientX - r.left) / r.width - 0.5) * 8;
+        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
+      });
+      card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+    });
+  }
+
+  /* ===========================================
+     11. MAGNETIC pull on primary buttons
+     =========================================== */
+  if (!prefersReducedMotion && matchMedia('(pointer: fine)').matches) {
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('pointermove', e => {
+        const r = btn.getBoundingClientRect();
+        const dx = (e.clientX - r.left - r.width / 2) * 0.18;
+        const dy = (e.clientY - r.top - r.height / 2) * 0.3;
+        btn.style.transform = `translate(${dx}px, ${dy}px)`;
+      });
+      btn.addEventListener('pointerleave', () => {
+        btn.style.transition = 'transform 0.4s cubic-bezier(.22,1,.36,1)';
+        btn.style.transform = '';
+        setTimeout(() => { btn.style.transition = ''; }, 400);
+      });
+    });
+  }
+
+  /* ===========================================
+     12. THREE.JS hero field (lazy, optional)
+     =========================================== */
+  if (!prefersReducedMotion && !matchMedia('(prefers-reduced-data: reduce)').matches) {
+    import('./hero-3d.js')
+      .then(m => m.initHero3D())
+      .catch(() => { /* no WebGL / offline CDN — page stays as-is */ });
   }
 });
