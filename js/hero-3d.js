@@ -46,7 +46,7 @@ export function initHero3D() {
     // ---- planet: wireframe core ----
     const core = new THREE.LineSegments(
       new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(R, 2)),
-      new THREE.LineBasicMaterial({ color: accent, transparent: true, opacity: 0.16, depthWrite: false })
+      new THREE.LineBasicMaterial({ color: accent, transparent: true, opacity: 0.08, depthWrite: false })
     );
     scene.add(core);
 
@@ -58,7 +58,7 @@ export function initHero3D() {
         blending: THREE.AdditiveBlending,
         uniforms: { uColor: { value: accent.clone() } },
         vertexShader: 'varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-        fragmentShader: 'uniform vec3 uColor; varying vec3 vN; void main(){ float i = pow(0.72 - dot(vN, vec3(0.0,0.0,1.0)), 3.5); gl_FragColor = vec4(uColor, 1.0) * clamp(i, 0.0, 1.0) * 1.4; }'
+        fragmentShader: 'uniform vec3 uColor; varying vec3 vN; void main(){ float i = pow(0.72 - dot(vN, vec3(0.0,0.0,1.0)), 3.5); gl_FragColor = vec4(uColor, 1.0) * clamp(i, 0.0, 1.0) * 0.7; }'
       })
     );
     scene.add(atmo);
@@ -71,8 +71,8 @@ export function initHero3D() {
       mesh.rotation.x = Math.PI / 2.35;
       return mesh;
     }
-    const ringA = ring(R * 1.5, R * 1.545, 128, 0.22);
-    const ringB = ring(R * 1.82, R * 1.845, 128, 0.12);
+    const ringA = ring(R * 1.5, R * 1.545, 128, 0.14);
+    const ringB = ring(R * 1.82, R * 1.845, 128, 0.08);
     ringB.rotation.z = 0.22;
     const ringGroup = new THREE.Group();
     ringGroup.add(ringA, ringB);
@@ -137,9 +137,9 @@ export function initHero3D() {
       ringB.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
       moon.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
       core.material.needsUpdate = atmo.material.needsUpdate = true;
-      core.material.opacity = light ? 0.3 : 0.16;
-      ringA.material.opacity = light ? 0.35 : 0.22;
-      ringB.material.opacity = light ? 0.2 : 0.12;
+      core.material.opacity = light ? 0.22 : 0.08;
+      ringA.material.opacity = light ? 0.26 : 0.14;
+      ringB.material.opacity = light ? 0.16 : 0.08;
     }
     applyTheme();
     new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
