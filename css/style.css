@@ -2841,3 +2841,7 @@ html { scroll-behavior: auto; }
 .cert-art img { width: 34px; height: 34px; }
 .cert-art { display: inline-flex; }
 .cert-badge--art { padding: 8px 14px 8px 8px; }
+
+[data-theme="dark"] .gh-chart {
+  filter: invert(1) hue-rotate(140deg) saturate(1.15);
+}
