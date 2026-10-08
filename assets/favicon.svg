@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" fill="#1c1a17"/>
-  <rect x="2" y="2" width="60" height="60" fill="none" stroke="#ede4d6" stroke-width="2"/>
-  <text x="16" y="42" font-family="'IBM Plex Sans', 'Segoe UI', Arial, sans-serif" font-size="30" font-weight="700" fill="#ede4d6">L</text>
-  <text x="34" y="42" font-family="'IBM Plex Sans', 'Segoe UI', Arial, sans-serif" font-size="30" font-weight="700" fill="#c06a3b">D</text>
+  <rect x="2" y="2" width="60" height="60" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <text x="16" y="42" font-family="'IBM Plex Sans', 'Segoe UI', Arial, sans-serif" font-size="30" font-weight="700" fill="#ffffff">L</text>
+  <text x="34" y="42" font-family="'IBM Plex Sans', 'Segoe UI', Arial, sans-serif" font-size="30" font-weight="700" fill="#1ed760">D</text>
 </svg>

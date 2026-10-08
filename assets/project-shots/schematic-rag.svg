@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" font-family="IBM Plex Mono, monospace">
   <rect width="720" height="400" fill="#1c1a17"/>
-  <g fill="none" stroke="#c06a3b" stroke-width="1.6" opacity="0.8">
+  <g fill="none" stroke="#1ed760" stroke-width="1.6" opacity="0.8">
     <rect x="30" y="160" width="120" height="70" rx="2"/>
     <rect x="215" y="160" width="120" height="70" rx="2"/>
     <rect x="400" y="160" width="120" height="70" rx="2"/>
     <rect x="585" y="160" width="110" height="70" rx="2"/>
   </g>
-  <g stroke="#c06a3b" stroke-width="1.6" marker-end="none" opacity="0.8">
+  <g stroke="#1ed760" stroke-width="1.6" marker-end="none" opacity="0.8">
     <line x1="150" y1="195" x2="215" y2="195"/><path d="M207 189 l8 6 -8 6" fill="none"/>
     <line x1="335" y1="195" x2="400" y2="195"/><path d="M392 189 l8 6 -8 6" fill="none"/>
     <line x1="520" y1="195" x2="585" y2="195"/><path d="M577 189 l8 6 -8 6" fill="none"/>
   </g>
-  <g fill="#ede4d6" font-size="14">
+  <g fill="#ffffff" font-size="14">
     <text x="90" y="190" text-anchor="middle">PDF</text><text x="90" y="212" text-anchor="middle" font-size="11" fill="#8b8175">pdfplumber</text>
     <text x="275" y="190" text-anchor="middle">chunks</text><text x="275" y="212" text-anchor="middle" font-size="11" fill="#8b8175">recursive split</text>
     <text x="460" y="190" text-anchor="middle">embeddings</text><text x="460" y="212" text-anchor="middle" font-size="11" fill="#8b8175">HF transformers</text>
@@ -21,8 +21,8 @@
     <path d="M640 230 L640 285 L360 285 L360 320"/>
     <path d="M352 312 l8 8 8 -8" fill="none"/>
   </g>
-  <rect x="270" y="320" width="180" height="52" rx="2" fill="none" stroke="#ede4d6" stroke-opacity="0.45" stroke-width="1.4"/>
-  <text x="360" y="341" text-anchor="middle" fill="#ede4d6" font-size="14">local LLM QA</text>
+  <rect x="270" y="320" width="180" height="52" rx="2" fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="1.4"/>
+  <text x="360" y="341" text-anchor="middle" fill="#ffffff" font-size="14">local LLM QA</text>
   <text x="360" y="359" text-anchor="middle" fill="#8b8175" font-size="11">top-k retrieved chunks</text>
   <text x="30" y="44" fill="#8b8175" font-size="15">rag pipeline — everything local</text>
   <text x="560" y="44" fill="#6f675d" font-size="11">architecture diagram</text>

@@ -3,15 +3,15 @@
   <g stroke="rgba(237,228,214,0.07)"><line x1="70" y1="340" x2="680" y2="340"/><line x1="70" y1="60" x2="70" y2="340"/></g>
   <!-- confusion-matrix style: stacked bars per predicted class -->
   <g>
-    <rect x="130" y="180" width="90" height="160" fill="#c06a3b" opacity="0.9"/>
-    <rect x="130" y="120" width="90" height="60"  fill="#ede4d6" opacity="0.25"/>
-    <rect x="420" y="240" width="90" height="100" fill="#ede4d6" opacity="0.25"/>
-    <rect x="420" y="160" width="90" height="80"  fill="#c06a3b" opacity="0.9"/>
+    <rect x="130" y="180" width="90" height="160" fill="#1ed760" opacity="0.9"/>
+    <rect x="130" y="120" width="90" height="60"  fill="#ffffff" opacity="0.25"/>
+    <rect x="420" y="240" width="90" height="100" fill="#ffffff" opacity="0.25"/>
+    <rect x="420" y="160" width="90" height="80"  fill="#1ed760" opacity="0.9"/>
   </g>
   <text x="175" y="365" fill="#8b8175" font-size="13" text-anchor="middle">stayed</text>
   <text x="465" y="365" fill="#8b8175" font-size="13" text-anchor="middle">churned</text>
   <text x="70" y="44" fill="#8b8175" font-size="15">predicted customer retention</text>
-  <text x="235" y="150" fill="#c06a3b" font-size="14">true positives</text>
+  <text x="235" y="150" fill="#1ed760" font-size="14">true positives</text>
   <text x="70" y="380" fill="#6f675d" font-size="13">gradient-boosted classifier &#183; scikit-learn</text>
   <text x="560" y="44" fill="#6f675d" font-size="11">schematic — not run data</text>
 </svg>
