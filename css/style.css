@@ -592,18 +592,7 @@ img { max-width: 100%; display: block; }
   color: #fff;
   transform: translateY(-2px);
 }
-.skill-tag.cert {
-  background: rgba(16, 185, 129, 0.1);
-  color: #34d399;
-}
-[data-theme="light"] .skill-tag.cert {
-  background: rgba(16, 185, 129, 0.08);
-  color: #059669;
-}
-.skill-tag.cert:hover {
-  background: #10b981;
-  color: #fff;
-}
+
 
 /* ========================================
    CAPSTONE PROJECT
@@ -1077,40 +1066,11 @@ img { max-width: 100%; display: block; }
   flex-wrap: wrap;
 }
 
-.cert-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 28px 32px;
-  text-align: center;
-  min-width: 180px;
-  transition: all 0.3s ease;
-}
-.cert-card:hover {
-  border-color: #10b981;
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-}
 
-.cert-badge {
-  color: #34d399;
-  margin-bottom: 12px;
-}
-[data-theme="light"] .cert-badge { color: #059669; }
 
-.cert-card h4 {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
+/* (cert-card block removed Oct 2026 — dead; cert showcase uses .cert-badges) */
 
-.cert-card p {
-  color: var(--text-muted);
-  font-size: 0.82rem;
-}
 
-@media (max-width: 768px) {
-}
 
 /* ========================================
    CONTACT
@@ -1720,12 +1680,13 @@ a {
 
 .btn-primary {
   background: var(--accent);
-  color: #f7eee2;
+  color: #0d1b10;
+  font-weight: 600;
 }
 
 .btn-primary:hover {
   background: var(--accent-light);
-  color: #f7eee2;
+  color: #0d1b10;
 }
 
 .btn-outline {
@@ -2804,4 +2765,46 @@ html { scroll-behavior: auto; }
   height: 7px;
   border-radius: 50%;
   background: var(--accent);
+}
+
+/* ---------- clickable cert badges ---------- */
+.cert-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 26px;
+}
+.cert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-family: var(--mono-font);
+  font-size: 0.7rem;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+.cert-badge:hover, .cert-badge:focus-visible {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 var(--accent-glow-strong);
+  color: var(--text-primary);
+}
+.cert-badge svg { flex: 0 0 auto; }
+.resume-entry .cert-name, .cert-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.resume-entry .cert-name svg { vertical-align: -5px; }
+
+[data-theme="light"] .btn-primary,
+[data-theme="light"] .btn-primary:hover {
+  background: #1db954;
+  color: #0d1b10;
 }
