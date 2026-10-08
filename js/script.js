@@ -105,6 +105,17 @@ document.addEventListener('DOMContentLoaded', () => {
           link.classList.add('active');
           moveIndicator();
         }
+      } else if (allNavLinks.length) {
+        // section with no nav link (e.g. cover letter): keep the nearest
+        // preceding linked section active instead of clearing the indicator
+        const before = [...sections].filter(s => s.offsetTop <= scrollY && document.querySelector(`.nav-link[href="#${s.id}"]`));
+        const anchor = before[before.length - 1];
+        if (anchor) {
+          allNavLinks.forEach(l => l.classList.remove('active'));
+          const a = document.querySelector(`.nav-link[href="#${anchor.id}"]`);
+          a.classList.add('active');
+          moveIndicator();
+        }
       }
     });
   }
@@ -313,40 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { btn.style.transition = ''; }, 700);
       });
     });
-  }
-
-  /* ===========================================
-     13. CUSTOM CURSOR (desktop only)
-     =========================================== */
-  if (!prefersReducedMotion && matchMedia('(pointer: fine)').matches) {
-    const dot  = document.createElement('div'); dot.className  = 'cursor-dot';
-    const ring = document.createElement('div'); ring.className = 'cursor-ring';
-    document.body.append(dot, ring);
-    document.body.classList.add('has-cursor');
-    dot.style.opacity = ring.style.opacity = '0';
-    let cursorStarted = false;
-    let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
-    addEventListener('pointermove', e => {
-      if (!cursorStarted) {
-        mx = rx = e.clientX;
-        my = ry = e.clientY;
-        dot.style.opacity = '1';
-        ring.style.opacity = '';
-        cursorStarted = true;
-      }
-      mx = e.clientX; my = e.clientY;
-    }, { passive: true });
-    (function loop() {
-      if (cursorStarted) {
-        rx += (mx - rx) * 0.1;
-        ry += (my - ry) * 0.1;
-        dot.style.transform  = `translate3d(${mx - 3}px, ${my - 3}px, 0)`;
-        ring.style.transform = `translate3d(${rx - 17}px, ${ry - 17}px, 0)`;
-        const hover = document.querySelector(':hover');
-        ring.classList.toggle('grow', !!(hover && hover.closest && hover.closest('a, button, .resume-section-title, [contenteditable="true"]')));
-      }
-      requestAnimationFrame(loop);
-    })();
   }
 
   /* ===========================================

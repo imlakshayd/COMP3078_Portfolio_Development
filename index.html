@@ -29,7 +29,6 @@
         <li><a href="#resume" class="nav-link">Resume</a></li>
         <li><a href="#capstone" class="nav-link">Capstone</a></li>
         <li><a href="#projects" class="nav-link">Projects</a></li>
-        <li><a href="#coverletter" class="nav-link">Cover Letter</a></li>
         <li><a href="#contact" class="nav-link">Contact</a></li>
       </ul>
       <div class="nav-actions">
@@ -51,12 +50,13 @@
       <div class="hero-copy">
         <p class="hero-greeting reveal">Hello, I'm</p>
         <h1 class="hero-name reveal">Lakshay Dhawan</h1>
-        <p class="hero-title reveal">Software Developer <span class="accent">|</span> AI &amp; Machine Learning Enthusiast</p>
+        <p class="hero-title reveal">Software Developer <span class="accent">|</span> AI &amp; Machine Learning</p>
         <p class="hero-intro reveal">Computer Programming student focused on building scalable systems, full-stack applications, and machine learning solutions.</p>
         <div class="hero-cta reveal">
           <a href="#projects" class="btn btn-primary">View Projects</a>
           <a href="assets/Lakshay_Dhawan_Resume.pdf" download class="btn btn-outline">Resume PDF</a>
         </div>
+        <p class="hero-avail reveal"><span class="avail-dot"></span>Open to work &mdash; new grad &middot; junior developer roles &middot; Toronto / GTA &middot; authorized to work in Canada</p>
       </div>
       <aside class="hero-notes reveal" aria-label="Desk notes">
         <p class="hero-notes-label">Desk Notes</p>
@@ -91,8 +91,7 @@
         </div>
         <div class="about-career reveal">
           <h3>Career Statement</h3>
-          <blockquote style="border-left: 3px solid var(--accent); padding-left: 16px; margin-bottom: 16px; font-style: italic; color: var(--text-muted);">&ldquo;I would rather have questions that can't be answered than answers that can't be questioned.&rdquo; &mdash; Richard Feynman</blockquote>
-          <p>I am a driven and curious developer who values understanding over memorization. With a focus on continuous learning and building real-world projects, I am developing my skills in programming and machine learning while working toward becoming an AI-focused engineer. I bring a mindset of questioning assumptions, embracing challenges, and consistently improving through action.</p>
+          <p>I&rsquo;d rather have questions that can&rsquo;t be answered than answers that can&rsquo;t be questioned &mdash; so I build things I have to answer for: RAG pipelines that actually retrieve, auth flows that survive merge conflicts, infra I can defend on a whiteboard.</p>
         </div>
       </div>
       <div class="about-stats reveal">
@@ -153,10 +152,8 @@
 
       <div class="resume-section reveal">
         <h4 class="resume-section-title">Summary</h4>
-        <p>Computer Programming student at George Brown College with a focused expertise in software engineering, machine learning, and scalable system architecture. Experienced in full-stack development and cloud technologies, offering a comprehensive perspective on user and engineering requirements.</p>
-        <p>Engineered solutions involving microservices, REST APIs, and machine learning models to bridge the gap between complex theoretical concepts and practical applications. Developed strong communication and adaptability skills through customer-centric roles, facilitating efficiency in fast-paced environments.</p>
-        <p>Focused on advancing foundations in software engineering and machine learning via real-world project development. Dedicated to contributing to high-impact systems and pursuing continuous growth and professional excellence as a developer.</p>
-      </div>
+        <p>George Brown grad (Apr 2026) building full-stack systems with an ML lean. Most real engineering I&rsquo;ve done was on <strong>Move-In</strong>, a 5-person capstone marketplace &mdash; I owned Supabase auth, migrations, Docker, and branch integration (top contributor, 24/51 commits). Outside that: a local RAG pipeline, two sklearn projects, and an Azure/GCP cert habit.</p>
+        </div>
 
       <div class="resume-section reveal">
         <h4 class="resume-section-title">Skills</h4>
@@ -685,6 +682,7 @@
         <article class="project-card reveal">
           <div class="project-card-inner">
             <div class="project-number">01</div>
+            <img class="project-shot" src="assets/project-shots/schematic-rag.svg" alt="RAG pipeline diagram: PDF to chunks to embeddings to ChromaDB to local LLM" loading="lazy">
             <h3 class="project-title">Local PDF RAG</h3>
             <p class="project-subtitle">AI / Machine Learning</p>
             <p class="project-desc">A local Retrieval-Augmented Generation pipeline that processes PDF documents, extracts text, chunks content, generates embeddings, and stores them in ChromaDB for semantic retrieval. Includes local LLM integration for context-based question answering.</p>
@@ -706,6 +704,7 @@
         <article class="project-card reveal">
           <div class="project-card-inner">
             <div class="project-number">02</div>
+            <img class="project-shot" src="assets/project-shots/schematic-ems.svg" alt="Docker Compose diagram: React UI to Express API to MongoDB" loading="lazy">
             <h3 class="project-title">Employee Management System</h3>
             <p class="project-subtitle">Full-Stack MERN + REST API</p>
             <p class="project-desc">One system, two deliverables: a RESTful employee API (JWT auth, bcrypt hashing, express-validator input checks) and a Dockerized React front end with auth, CRUD, search, and profile image upload &mdash; built API-first, then wired to the UI.</p>
@@ -730,6 +729,7 @@
         <article class="project-card reveal">
           <div class="project-card-inner">
             <div class="project-number">03</div>
+            <img class="project-shot" src="assets/project-shots/schematic-housing.svg" alt="Regression schematic: housing values fit with a line" loading="lazy">
             <h3 class="project-title">California Housing Price Prediction</h3>
             <p class="project-subtitle">Machine Learning</p>
             <p class="project-desc">Implemented multiple linear regression from scratch using closed-form solution and gradient descent, then benchmarked against scikit-learn. Includes preprocessing, scaling, evaluation, and visualizations.</p>
@@ -751,6 +751,7 @@
         <article class="project-card reveal">
           <div class="project-card-inner">
             <div class="project-number">04</div>
+            <img class="project-shot" src="assets/project-shots/schematic-churn.svg" alt="Classification schematic: retention prediction distribution" loading="lazy">
             <h3 class="project-title">Telco Customer Churn Prediction</h3>
             <p class="project-subtitle">Machine Learning</p>
             <p class="project-desc">A customer churn classification pipeline using logistic regression, including one-hot encoding, feature scaling, confusion matrix analysis, and threshold tuning. Also built logistic regression from scratch for comparison.</p>
@@ -854,7 +855,7 @@
   <!-- =============== FOOTER =============== -->
   <footer class="footer">
     <div class="container footer-content">
-      <p>&copy; 2026 Lakshay Dhawan. All rights reserved.</p>
+      <p>&copy; 2026 Lakshay Dhawan &middot; <a href="#coverletter" class="footer-note-link">Cover letter</a> &middot; <span class="edition">ed. IV &mdash; built by hand, no templates</span></p>
       <div class="footer-links">
         <a href="https://github.com/imlakshayd" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
