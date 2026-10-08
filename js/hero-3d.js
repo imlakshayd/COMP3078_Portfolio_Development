@@ -1,7 +1,6 @@
-// Hero background v3 — "signal field": a slow coherent wave, not noise.
-// A grid of points undulates on one traveling sine wave (green), one pale
-// ribbon traces the crest line, and a faint wireframe skeleton anchors it.
-// Lazy: dynamic import fires only when the hero is first scrolled near.
+// Hero background v4 — a quiet planet, not a particle storm.
+// Wireframe sphere with a rim-lit atmosphere shell, two tilted ring bands,
+// slow rotation + breathing, camera drift follows the pointer.
 export function initHero3D() {
   const hero = document.getElementById('home');
   if (!hero) return;
@@ -12,12 +11,10 @@ export function initHero3D() {
     canvas.setAttribute('aria-hidden', 'true');
     document.body.appendChild(canvas);
   }
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduced) { canvas.style.display = 'none'; return; }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { canvas.style.display = 'none'; return; }
 
-  let started = false, THREE = null, raf = 0, visible = true;
-  let mx = 0, my = 0, camTX = 0, camTY = 0;
-  let scrollFade = 1;
+  let THREE = null, raf = 0, visible = true, scrollFade = 1;
+  let mx = 0, my = 0;
 
   function cssColor(name) {
     const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -26,17 +23,13 @@ export function initHero3D() {
 
   const io = new IntersectionObserver((entries) => {
     visible = entries.some(e => e.isIntersecting);
-    if (visible && started && !raf) loop(performance.now());
+    if (visible && raf === -1) { raf = 0; loop(performance.now()); }
   }, { threshold: 0 });
   io.observe(hero);
 
-  load();
-
-  function load() {
-    import('https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.module.js')
-      .then(init)
-      .catch(() => import('https://unpkg.com/three@0.166.1/build/three.module.js').then(init).catch(() => {}));
-  }
+  import('https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.module.js')
+    .then(init)
+    .catch(() => import('https://unpkg.com/three@0.166.1/build/three.module.js').then(init).catch(() => {}));
 
   function init(T) {
     THREE = T;
@@ -47,78 +40,70 @@ export function initHero3D() {
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
     camera.position.set(0, 0, 15);
 
-    // ---- the wave lattice: one coherent traveling sine, green points ----
-    const NX = 46, NZ = 26;             // grid resolution
-    const W = 34, D = 20;               // world size
-    const n = NX * NZ;
-    const pos = new Float32Array(n * 3);
-    const base = new Float32Array(n * 2); // x,z footprints
-    for (let i = 0; i < n; i++) {
-      const gx = (i % NX) / (NX - 1) - 0.5;
-      const gz = Math.floor(i / NX) / (NZ - 1) - 0.5;
-      base[i * 2] = gx * W;
-      base[i * 2 + 1] = gz * D;
-      pos[i * 3] = gx * W;
-      pos[i * 3 + 1] = 0;
-      pos[i * 3 + 2] = gz * D - 4;
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const accentColor = new THREE.Color(cssColor('--accent'));
-    const pts = new THREE.Points(geo, new THREE.PointsMaterial({
-      color: accentColor, size: 0.055, transparent: true, opacity: 0.5,
-      sizeAttenuation: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    }));
-    pts.frustumCulled = false;
-    scene.add(pts);
+    const accent = new THREE.Color(cssColor('--accent'));
+    const R = 4.4;
 
-    // ---- pale crest ribbon tracing one line of the same wave ----
-    const RN = 90;
-    const rpos = new Float32Array(RN * 3);
-    const rgeo = new THREE.BufferGeometry();
-    rgeo.setAttribute('position', new THREE.BufferAttribute(rpos, 3));
-    const ribbon = new THREE.Line(rgeo, new THREE.LineBasicMaterial({
-      color: new THREE.Color('#b3b3b3'), transparent: true, opacity: 0.4, depthWrite: false,
-    }));
-    ribbon.frustumCulled = false;
-    scene.add(ribbon);
-
-    // ---- faint geometry skeleton ----
-    const wireColor = new THREE.Color(cssColor('--accent'));
-    const lat = new THREE.LineSegments(
-      new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(7.5, 1)),
-      new THREE.LineBasicMaterial({ color: wireColor, transparent: true, opacity: 0.05, depthWrite: false })
+    // ---- planet: wireframe core ----
+    const core = new THREE.LineSegments(
+      new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(R, 2)),
+      new THREE.LineBasicMaterial({ color: accent, transparent: true, opacity: 0.16, depthWrite: false })
     );
-    lat.position.set(0, 0, -9);
-    scene.add(lat);
+    scene.add(core);
 
-    const WAVE_K = 0.32;   // spatial frequency
-    const WAVE_A = 0.9;    // amplitude
-    const WAVE_V = 0.00016; // rad/ms — ~1 cycle per 39 s
-    function wave(x, z, t) {
-      const p = (x * WAVE_K + z * WAVE_K * 0.45) - t * WAVE_V;
-      return Math.sin(p) * WAVE_A + Math.sin(p * 0.5 + 1.3) * WAVE_A * 0.35;
-    }
+    // ---- atmosphere: inverted shell, rim glow via fresnel shader ----
+    const atmo = new THREE.Mesh(
+      new THREE.SphereGeometry(R * 1.16, 48, 48),
+      new THREE.ShaderMaterial({
+        transparent: true, depthWrite: false, side: THREE.BackSide,
+        blending: THREE.AdditiveBlending,
+        uniforms: { uColor: { value: accent.clone() } },
+        vertexShader: 'varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+        fragmentShader: 'uniform vec3 uColor; varying vec3 vN; void main(){ float i = pow(0.72 - dot(vN, vec3(0.0,0.0,1.0)), 3.5); gl_FragColor = vec4(uColor, 1.0) * clamp(i, 0.0, 1.0) * 1.4; }'
+      })
+    );
+    scene.add(atmo);
 
-    function deform(t) {
-      for (let i = 0; i < n; i++) {
-        pos[i * 3 + 1] = wave(base[i * 2], base[i * 2 + 1], t);
-      }
-      geo.attributes.position.needsUpdate = true;
-      for (let i = 0; i < RN; i++) {
-        const x = (i / (RN - 1) - 0.5) * W;
-        rpos[i * 3] = x;
-        rpos[i * 3 + 1] = wave(x, D * 0.18, t) * 1.6;
-        rpos[i * 3 + 2] = D * 0.18 - 4;
-      }
-      rgeo.attributes.position.needsUpdate = true;
+    // ---- ring bands (Saturn, but drafting-table) ----
+    function ring(r0, r1, segments, opacity) {
+      const g = new THREE.RingGeometry(r0, r1, segments);
+      const m = new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false });
+      const mesh = new THREE.Mesh(g, m);
+      mesh.rotation.x = Math.PI / 2.35;
+      return mesh;
     }
+    const ringA = ring(R * 1.5, R * 1.545, 128, 0.22);
+    const ringB = ring(R * 1.82, R * 1.845, 128, 0.12);
+    ringB.rotation.z = 0.22;
+    const ringGroup = new THREE.Group();
+    ringGroup.add(ringA, ringB);
+    scene.add(ringGroup);
+
+    // ---- one faint moon tracing the outer ring ----
+    const moon = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 12, 12),
+      new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.7 })
+    );
+    scene.add(moon);
+
+    function place() {
+      // planet to the right, behind the copy column — like the old torus orbit
+      core.position.set(5.6, -1.2, -7);
+      atmo.position.copy(core.position);
+      ringGroup.position.copy(core.position);
+      ringGroup.rotation.x = 0.42;
+      ringGroup.rotation.y = 0.16;
+    }
+    place();
 
     function resize() {
-      const w = innerWidth, h = innerHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
+      renderer.setSize(innerWidth, innerHeight, false);
+      camera.aspect = innerWidth / innerHeight;
       camera.updateProjectionMatrix();
+      // keep the planet right-of-center on narrow screens too
+      const squeeze = Math.max(0, 1 - innerWidth / 1100);
+      core.position.x = 5.6 - squeeze * 5.6;
+      atmo.position.x = core.position.x;
+      ringGroup.position.x = core.position.x;
     }
     resize();
     addEventListener('resize', resize);
@@ -131,43 +116,68 @@ export function initHero3D() {
     function onScroll() {
       scrollFade = Math.max(0, 1 - scrollY / (innerHeight * 0.85));
       canvas.style.opacity = scrollFade.toFixed(3);
-      if (scrollFade <= 0 && raf) { cancelAnimationFrame(raf); raf = 0; }
-      else if (scrollFade > 0 && !raf && visible) loop(performance.now());
+      if (scrollFade <= 0 && raf > 0) { cancelAnimationFrame(raf); raf = -1; }
+      else if (scrollFade > 0 && raf === 0 && visible) loop(performance.now());
     }
     addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    const obs = new MutationObserver(() => {
-      pts.material.color.set(cssColor('--accent'));
-      lat.material.color.set(cssColor('--accent'));
-    });
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    function applyTheme() {
+      const light = document.documentElement.getAttribute('data-theme') === 'light';
+      const c = new THREE.Color(cssColor('--accent'));
+      core.material.color.copy(c);
+      atmo.material.uniforms.uColor.value.copy(c);
+      ringA.material.color.copy(c);
+      ringB.material.color.copy(c);
+      moon.material.color.copy(c);
+      // additive glow reads on dark; on light backgrounds switch to normal
+      core.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+      atmo.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+      ringA.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+      ringB.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+      moon.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+      core.material.needsUpdate = atmo.material.needsUpdate = true;
+      core.material.opacity = light ? 0.3 : 0.16;
+      ringA.material.opacity = light ? 0.35 : 0.22;
+      ringB.material.opacity = light ? 0.2 : 0.12;
+    }
+    applyTheme();
+    new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
     let last = 0;
     function loop(t) {
-      if (!visible || scrollFade <= 0) { raf = 0; return; }
+      if (!visible || scrollFade <= 0) return;
       raf = requestAnimationFrame(loop);
-      if (t - last < 24) return; // ~40 fps cap — deliberately unhurried
+      if (t - last < 30) return; // ~33 fps — deliberately calm
       last = t;
-      deform(t);
-      lat.rotation.y = t * 0.000008;
-      camTX = mx * 1.2;
-      camTY = -my * 0.8 + scrollFade * 1.2;
-      camera.position.x += (camTX - camera.position.x) * 0.014;
-      camera.position.y += (camTY - camera.position.y) * 0.014;
-      camera.lookAt(0, 0, -2);
+      const spin = t * 0.000028;                 // ~1 rev / 6 min
+      core.rotation.y = spin;
+      core.rotation.x = 0.25 + Math.sin(t * 0.000015) * 0.06;
+      const breathe = 1 + Math.sin(t * 0.00006) * 0.015;
+      atmo.scale.setScalar(breathe);
+      ringGroup.rotation.z = spin * 0.4;
+      const a = t * 0.00007;                     // moon orbit ~2.5 min
+      const rr = R * 1.66;
+      moon.position.set(
+        core.position.x + Math.cos(a) * rr,
+        core.position.y + Math.sin(a) * rr * Math.sin(0.42),
+        core.position.z + Math.sin(a) * rr * Math.cos(0.42)
+      );
+      camera.position.x += (mx * 1.1 - camera.position.x) * 0.014;
+      camera.position.y += (-my * 0.7 + scrollFade * 1.0 - camera.position.y) * 0.014;
+      camera.lookAt(0.8, 0, -2);
       renderer.render(scene, camera);
     }
-    deform(performance.now());
     renderer.render(scene, camera);
-    canvas.style.opacity = scrollFade.toFixed(3);
     loop(performance.now());
 
     canvas._heroDestroy = () => {
       cancelAnimationFrame(raf);
-      obs.disconnect();
-      geo.dispose(); rgeo.dispose(); lat.geometry.dispose();
-      pts.material.dispose(); ribbon.material.dispose(); lat.material.dispose();
+      core.geometry.dispose(); core.material.dispose();
+      atmo.geometry.dispose(); atmo.material.dispose();
+      ringA.geometry.dispose(); ringA.material.dispose();
+      ringB.geometry.dispose(); ringB.material.dispose();
+      moon.geometry.dispose(); moon.material.dispose();
       renderer.dispose();
     };
   }

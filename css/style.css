@@ -1109,94 +1109,7 @@ img { max-width: 100%; display: block; }
   font-size: 0.82rem;
 }
 
-/* ========================================
-   COVER LETTER
-   ======================================== */
-.coverletter-wrapper {
-  max-width: 760px;
-  margin: 0 auto;
-}
-
-.coverletter-document {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 40px 48px;
-  font-size: 0.95rem;
-  line-height: 1.8;
-  color: var(--text-secondary);
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.coverletter-document p {
-  margin-bottom: 2px;
-}
-
-.cl-editable {
-  color: var(--accent);
-  background: var(--accent-glow);
-  padding: 2px 8px;
-  border-radius: 6px;
-  border: 1px dashed transparent;
-  outline: none;
-  transition: all 0.3s ease;
-  cursor: text;
-  min-width: 60px;
-  display: inline-block;
-}
-
-.cl-editable:hover {
-  border-color: var(--accent);
-}
-
-.cl-editable:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-  background: var(--accent-glow-strong);
-}
-
-.cl-editable.edited {
-  color: var(--text-primary);
-  background: transparent;
-  border-color: transparent;
-}
-
-.cl-editable.edited:hover {
-  border-color: var(--border-hover);
-}
-
-.cl-editable.edited:focus {
-  border-color: var(--accent);
-  background: var(--accent-glow);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-}
-
-.coverletter-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 24px;
-  flex-wrap: wrap;
-}
-
-.coverletter-actions .btn {
-  min-width: 160px;
-  justify-content: center;
-}
-
 @media (max-width: 768px) {
-  .coverletter-document {
-    padding: 24px 20px;
-    font-size: 0.88rem;
-  }
-  .coverletter-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  .coverletter-actions .btn {
-    width: 100%;
-  }
 }
 
 /* ========================================
@@ -1900,22 +1813,6 @@ a {
   position: relative;
 }
 
-.about-bio::before,
-.about-career::before,
-#resume .container::before,
-.coverletter-document::before,
-.contact-form::before {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 18px;
-  width: 72px;
-  height: 14px;
-  background: var(--paper-strip);
-  box-shadow: var(--shadow-sm);
-  transform: rotate(-5deg);
-}
-
 .about-bio h3,
 .about-career h3 {
   margin-bottom: 18px;
@@ -2310,56 +2207,6 @@ a {
   color: var(--text-secondary);
 }
 
-.coverletter-wrapper {
-  max-width: 920px;
-}
-
-.coverletter-document {
-  padding: 42px 46px 42px 84px;
-  border-radius: 2px;
-  border: 1px solid var(--border-hover);
-  box-shadow: var(--shadow-lg);
-  color: var(--text-secondary);
-  background-color: var(--bg-card);
-  background-image:
-    linear-gradient(to right, transparent 0, transparent 54px, var(--paper-line) 54px, var(--paper-line) 55px, transparent 55px),
-    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--paper-line) 31px, var(--paper-line) 32px);
-}
-
-.cl-editable {
-  padding: 2px 6px;
-  border: 1px dashed var(--border-hover);
-  border-radius: 2px;
-  background: var(--accent-glow);
-  color: var(--accent);
-}
-
-.cl-editable:focus {
-  background: var(--accent-glow-strong);
-  box-shadow: none;
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.cl-editable.edited {
-  color: var(--text-primary);
-  background: transparent;
-}
-
-.cl-editable.edited:focus {
-  box-shadow: none;
-  background: var(--accent-glow);
-}
-
-.coverletter-actions {
-  justify-content: flex-start;
-  gap: 10px;
-}
-
-.coverletter-actions .btn {
-  min-width: 0;
-}
-
 .contact-grid {
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
   gap: 30px;
@@ -2570,22 +2417,6 @@ a {
     inset: 6px -6px -6px 6px;
   }
 
-  .coverletter-document {
-    padding: 28px 22px 28px 56px;
-    background-image:
-      linear-gradient(to right, transparent 0, transparent 34px, var(--paper-line) 34px, var(--paper-line) 35px, transparent 35px),
-      repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--paper-line) 31px, var(--paper-line) 32px);
-  }
-
-  .coverletter-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .coverletter-actions .btn {
-    width: 100%;
-  }
-
   .contact-form {
     padding: 20px;
   }
@@ -2611,10 +2442,6 @@ a {
 
   .project-number {
     right: 18px;
-  }
-
-  .coverletter-document {
-    padding: 24px 16px 24px 44px;
   }
 }
 
@@ -2658,11 +2485,11 @@ html { scroll-behavior: auto; }
   position: absolute;
   inset: -60px -80px;
   z-index: -1;
-  background: radial-gradient(ellipse at 30% 45%, rgba(28, 26, 23, 0.75) 0%, rgba(28, 26, 23, 0.45) 45%, transparent 75%);
+  background: radial-gradient(ellipse at 30% 45%, rgba(18, 18, 18, 0.75) 0%, rgba(18, 18, 18, 0.45) 45%, transparent 75%);
   pointer-events: none;
 }
 [data-theme="light"] .hero-copy::before {
-  background: radial-gradient(ellipse at 30% 45%, rgba(243, 239, 230, 0.8) 0%, rgba(243, 239, 230, 0.5) 45%, transparent 75%);
+  background: radial-gradient(ellipse at 30% 45%, rgba(242, 242, 242, 0.85) 0%, rgba(242, 242, 242, 0.55) 45%, transparent 75%);
 }
 
 /* ---------- reveals: slower, deeper, replayable ---------- */
@@ -2812,7 +2639,7 @@ html { scroll-behavior: auto; }
 /* ---------- NOW section ---------- */
 .now-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1.2fr 1fr;
   gap: 20px;
   margin-top: 48px;
 }
