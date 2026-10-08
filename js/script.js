@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroCta    = document.querySelector('.hero-cta');
   const heroNotes  = document.querySelector('.hero-notes');
 
-  [heroGreet, heroTitle, heroIntro, heroCta, heroNotes].forEach(el => el && el.classList.remove('reveal'));
+  [heroGreet, heroName, heroTitle, heroIntro, heroCta, heroNotes].forEach(el => el && el.classList.remove('reveal'));
   if (heroCopy && heroName && !prefersReducedMotion) {
     const words = heroName.textContent.trim().split(/\s+/);
     heroName.innerHTML = words.map(w => `<span class="hero-word"><span>${w}</span></span>`).join(' ');
